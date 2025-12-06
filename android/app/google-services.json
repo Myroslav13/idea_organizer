@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "653289926049",
+    "project_id": "idea-organizer-afc78",
+    "storage_bucket": "idea-organizer-afc78.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653289926049:android:f363c6d28d694b3d572fe0",
+        "android_client_info": {
+          "package_name": "com.example.idea_organizer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8l_K1rz3nPoWfGtaQIrSxGZmNzvNrvNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653289926049:android:513a03402727afdf572fe0",
+        "android_client_info": {
+          "package_name": "com.example.my_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8l_K1rz3nPoWfGtaQIrSxGZmNzvNrvNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
