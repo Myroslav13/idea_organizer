@@ -29,22 +29,18 @@ class IdeaLinksPage extends StatelessWidget {
           if (notes.isEmpty) {
             return const Center(child: Text("Немає нотаток для візуалізації"));
           }
-          // 1. Будуємо всі ланцюжки (суцільні послідовності)
           final Set<String> visited = {};
           final List<List<Note>> chains = [];
           final Map<String, Note> noteMap = { for (var n in notes) n.id: n };
 
-          // Для кожної нотатки, яка ще не відвідана і має зв’язки, будуємо ланцюжок
           for (final note in notes) {
             if (visited.contains(note.id)) continue;
-            // Має хоча б один зв’язок
             final neighbors = <String>{
               ...note.linkedNoteIds,
               ...notes.where((n) => n.linkedNoteIds.contains(note.id)).map((n) => n.id),
             };
             if (neighbors.isEmpty) continue;
 
-            // Будуємо ланцюжок вперед
             final List<Note> chain = [note];
             visited.add(note.id);
             Note? current = note;
@@ -60,7 +56,6 @@ class IdeaLinksPage extends StatelessWidget {
               current = next;
             }
 
-            // Будуємо ланцюжок назад
             current = note;
             while (true) {
               final prevList = notes.where(
@@ -128,7 +123,6 @@ class _IdeaLinkCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tags = note.tags;
     final tagsColors = note.tagsColors;
-    // Кількість унікальних сусідів (двосторонньо)
     final outgoing = note.linkedNoteIds;
     final incoming = allNotes.where((n) => n.linkedNoteIds.contains(note.id)).map((n) => n.id);
     final linkedCount = {...outgoing, ...incoming}.length;

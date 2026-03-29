@@ -5,7 +5,6 @@ import '../bloc/notes_bloc.dart';
 import '../models/note_model.dart';
 import 'linked_notes_selector.dart';
 
-
 Widget buildListItem(
     BuildContext context, {
       required String color,
@@ -70,7 +69,7 @@ Widget buildContentBlock({
   required String lastChange,
   required List<String> tags,
   required List<int> tagsColors,
-  List<Note>? linkedNotes, // Додаємо список зв'язаних нотаток
+  List<Note>? linkedNotes,
 }) {
   return ConstrainedBox(
     constraints: const BoxConstraints(
@@ -205,8 +204,7 @@ class NoteFormDialog extends StatefulWidget {
 }
 
 class _NoteFormDialogState extends State<NoteFormDialog> {
-    // Для вибору зв'язаних нотаток
-    List<String> _selectedLinkedNoteIds = [];
+  List<String> _selectedLinkedNoteIds = [];
 
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
@@ -239,13 +237,10 @@ class _NoteFormDialogState extends State<NoteFormDialog> {
           DateFormat('dd.MM.yyyy').format(_selectedDate!);
     }
 
-    // ініціалізуємо зв'язані нотатки при редагуванні (двосторонньо)
     if (note != null) {
       final allNotes = context.read<NotesBloc>().state.allNotes;
       final linked = <String>{};
-      // Вихідні зв'язки
       linked.addAll(note.linkedNoteIds);
-      // Вхідні зв'язки
       linked.addAll(allNotes.where((n) => n.linkedNoteIds.contains(note.id)).map((n) => n.id));
       _selectedLinkedNoteIds = linked.toList();
     }
@@ -306,7 +301,7 @@ class _NoteFormDialogState extends State<NoteFormDialog> {
           linkedNoteIds: _selectedLinkedNoteIds,
         ),
       );
-      // Двостороння синхронізація для нової нотатки не потрібна, бо вона ще не існує
+
       Navigator.of(context).pop();
     }
   }
@@ -331,7 +326,6 @@ class _NoteFormDialogState extends State<NoteFormDialog> {
         linkedNoteIds: _selectedLinkedNoteIds,
       );
 
-      // Додаємо новий евент для двосторонньої синхронізації
       context.read<NotesBloc>().add(UpdateNoteLinks(
         updatedNote: updatedNote,
         allLinkedIds: _selectedLinkedNoteIds,
@@ -398,7 +392,6 @@ class _NoteFormDialogState extends State<NoteFormDialog> {
                   v == null || v.isEmpty ? 'Please enter a title' : null,
                 ),
                 const SizedBox(height: 16),
-                // Вибір зв'язаних нотаток
                 const Text(
                   "Зв’язані нотатки",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -406,7 +399,6 @@ class _NoteFormDialogState extends State<NoteFormDialog> {
                 const SizedBox(height: 8),
                 BlocBuilder<NotesBloc, NotesState>(
                   builder: (context, state) {
-                    // Всі нотатки, крім поточної (щоб не можна було зв'язати саму з собою)
                     final allNotes = state.allNotes.where((n) => n.id != widget.noteToEdit?.id).toList();
                     return LinkedNotesSelector(
                       allNotes: allNotes,
