@@ -1,4 +1,12 @@
 part of 'notes_bloc.dart';
+// Двостороннє оновлення зв'язків між нотатками
+class UpdateNoteLinks extends NotesEvent {
+  final Note updatedNote;
+  final List<String> allLinkedIds;
+  const UpdateNoteLinks({required this.updatedNote, required this.allLinkedIds});
+  @override
+  List<Object> get props => [updatedNote, allLinkedIds];
+}
 
 abstract class NotesEvent extends Equatable {
   const NotesEvent();
@@ -21,15 +29,17 @@ class AddNote extends NotesEvent {
   final String content;
   final List<String> tags;
   final DateTime? notificationDate;
+  final List<String> linkedNoteIds;
 
   const AddNote({
     required this.title,
     required this.content,
     required this.tags,
     this.notificationDate,
+    this.linkedNoteIds = const [],
   });
   @override
-  List<Object?> get props => [title, content, tags, notificationDate];
+  List<Object?> get props => [title, content, tags, notificationDate, linkedNoteIds];
 }
 
 class UpdateNote extends NotesEvent {

@@ -3,10 +3,13 @@ import 'bloc/notes_bloc.dart';
 import 'models/note_model.dart';
 import 'repositories/notes_repository.dart';
 import 'widgets/other_widgets.dart';
+import 'widgets/idea_links_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +31,15 @@ void main() async {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  runApp(const MyApp());
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+  runApp(MyApp(analytics: analytics));
 }
 
+
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseAnalytics analytics;
+  const MyApp({super.key, required this.analytics});
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +49,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const LoginPage(title: 'Idea Organizer'),
+      navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
+      home: LoginPage(title: 'Idea Organizer', analytics: analytics),
     );
   }
 }
 
+
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
+  final FirebaseAnalytics analytics;
+  const LoginPage({super.key, required this.title, required this.analytics});
 
   final String title;
 
@@ -76,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+      await widget.analytics.logEvent(name: 'login_success');
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -123,6 +134,8 @@ class _LoginPageState extends State<LoginPage> {
         default:
           message = 'Login failed: ${e.message ?? 'Please try again.'}';
       }
+
+      await widget.analytics.logEvent(name: 'login_failed', parameters: {'error_code': e.code});
 
       setState(() {
         _errorMessage = message;
@@ -520,6 +533,43 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
 class MainPage extends StatelessWidget {
+
+    // Віджет-кнопка для переходу на сторінку зв'язків ідей
+    Widget buildLinksButton(BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF007BFF),
+              elevation: 0,
+              side: const BorderSide(color: Color(0xFF007BFF), width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            icon: const Icon(Icons.account_tree_outlined, size: 28),
+            label: const Text(
+              "Зв’язки ідей",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: BlocProvider.of<NotesBloc>(context),
+                    child: const IdeaLinksPage(),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
   const MainPage({super.key});
 
   void _openNoteDialog(BuildContext context, Note? noteToEdit) {
@@ -627,6 +677,8 @@ class MainPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Додаємо кнопку для переходу на сторінку зв'язків ідей
+                buildLinksButton(context),
                 const SizedBox(height: 30),
                 Expanded(
                   child: Stack(

@@ -41,9 +41,51 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<NotesUpdated>(_onNotesUpdated);
     on<AddNote>(_onAddNote);
     on<UpdateNote>(_onUpdateNote);
+    on<UpdateNoteLinks>(_onUpdateNoteLinks);
     on<DeleteNote>(_onDeleteNote);
     on<FilterBySearch>(_onFilterBySearch);
     on<FilterByTag>(_onFilterByTag);
+  }
+
+  Future<void> _onUpdateNoteLinks(UpdateNoteLinks event, Emitter<NotesState> emit) async {
+    try {
+      // Оновлюємо саму нотатку
+      await _notesRepository.updateNote(event.updatedNote);
+
+      // Оновлюємо зв’язані нотатки (додаємо або видаляємо зв’язок з ними)
+      final allNotes = state.allNotes;
+      final updatedId = event.updatedNote.id;
+      final newLinkedIds = event.allLinkedIds;
+
+      for (final note in allNotes) {
+        if (note.id == updatedId) continue;
+        final isLinkedNow = newLinkedIds.contains(note.id);
+        final wasLinked = note.linkedNoteIds.contains(updatedId);
+
+        if (isLinkedNow && !wasLinked) {
+          // Додаємо зв’язок у іншій нотатці
+          final updated = note.copyWith(
+            linkedNoteIds: [...note.linkedNoteIds, updatedId],
+          );
+          await _notesRepository.updateNote(updated);
+        } else if (!isLinkedNow && wasLinked) {
+          // Видаляємо зв’язок у іншій нотатці
+          final updated = note.copyWith(
+            linkedNoteIds: note.linkedNoteIds.where((id) => id != updatedId).toList(),
+          );
+          await _notesRepository.updateNote(updated);
+        }
+      }
+    } catch (e) {
+      emit(NotesError(
+        message: 'Failed to update links: $e',
+        previousAllNotes: state.allNotes,
+        previousDisplayedNotes: state.displayedNotes,
+        previousTagCounts: state.tagCounts,
+        previousSelectedTag: state.selectedTag,
+        previousSearchTerm: state.searchTerm,
+      ));
+    }
   }
 
   Map<String, int> _calculateTagCounts(List<Note> notes) {

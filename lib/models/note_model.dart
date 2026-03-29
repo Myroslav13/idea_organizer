@@ -9,6 +9,7 @@ class Note extends Equatable {
   final List<String> tags;
   final List<int> tagsColors;
   final DateTime? notificationDate;
+  final List<String> linkedNoteIds;
 
   const Note({
     required this.id,
@@ -18,6 +19,7 @@ class Note extends Equatable {
     required this.tags,
     required this.tagsColors,
     this.notificationDate,
+    this.linkedNoteIds = const [],
   });
 
   @override
@@ -29,6 +31,7 @@ class Note extends Equatable {
     tags,
     tagsColors,
     notificationDate,
+    linkedNoteIds,
   ];
 
   // Перетворення з Firestore DocumentSnapshot в об'єкт Note
@@ -45,6 +48,7 @@ class Note extends Equatable {
       notificationDate: data['notificationDate'] != null
           ? (data['notificationDate'] as Timestamp).toDate()
           : null,
+      linkedNoteIds: List<String>.from(data['linkedNoteIds'] ?? []),
     );
   }
 
@@ -59,6 +63,7 @@ class Note extends Equatable {
       'notificationDate': notificationDate != null
           ? Timestamp.fromDate(notificationDate!)
           : null,
+      'linkedNoteIds': linkedNoteIds,
     };
   }
 
@@ -70,6 +75,7 @@ class Note extends Equatable {
     List<String>? tags,
     List<int>? tagsColors,
     DateTime? notificationDate,
+    List<String>? linkedNoteIds,
   }) {
     return Note(
       id: id ?? this.id,
@@ -79,6 +85,7 @@ class Note extends Equatable {
       tags: tags ?? this.tags,
       tagsColors: tagsColors ?? this.tagsColors,
       notificationDate: notificationDate ?? this.notificationDate,
+      linkedNoteIds: linkedNoteIds ?? this.linkedNoteIds,
     );
   }
 }
