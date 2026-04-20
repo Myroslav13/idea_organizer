@@ -5,7 +5,6 @@ import '../bloc/notes_bloc.dart';
 import '../models/note_model.dart';
 import 'linked_notes_selector.dart';
 
-
 Widget buildListItem(
     BuildContext context, {
       required String color,
@@ -205,9 +204,7 @@ class NoteFormDialog extends StatefulWidget {
 }
 
 class _NoteFormDialogState extends State<NoteFormDialog> {
-    // Для вибору зв'язаних нотаток
-    List<String> _selectedLinkedNoteIds = [];
-
+  List<String> _selectedLinkedNoteIds = [];
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _tagsController;

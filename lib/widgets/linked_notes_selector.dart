@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/note_model.dart';
 
-/// Віджет для вибору зв'язаних нотаток (MultiSelect)
 class LinkedNotesSelector extends StatelessWidget {
   final List<Note> allNotes;
   final List<String> selectedIds;
